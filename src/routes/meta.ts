@@ -64,8 +64,31 @@ metaRoute.get("*", async (c) => {
     c.executionCtx.waitUntil(api.db.insert(doubanMapping).values({ doubanId }));
   }
 
-  const { tmdbId, imdbId } = dbData || {};
+  // 重要：只从 dbData 中解构一次，不要重复声明
+  let { tmdbId, imdbId } = dbData || {};
 
+  // 后备映射逻辑：如果数据库中没有 imdbId，则实时获取
+  if (!imdbId) {
+    const externalId = await api.findExternalId({ 
+      doubanId, 
+      type: data.type === "tv" ? "tv" : "movie" 
+    });
+    if (externalId) {
+      imdbId = externalId.imdbId;
+      tmdbId = externalId.tmdbId;
+      // 后台异步写入数据库，供下次使用
+      c.executionCtx.waitUntil(
+        api.persistIdMapping([{
+          doubanId,
+          imdbId: externalId.imdbId,
+          tmdbId: externalId.tmdbId,
+          traktId: externalId.traktId,
+        }])
+      );
+    }
+  }
+
+  // 使用 tmdbId 和 imdbId 进行后续处理
   if (tmdbId) {
     if (isInForward) {
       meta.tmdb_id = `tmdb:${tmdbId}`;
@@ -74,11 +97,15 @@ metaRoute.get("*", async (c) => {
     }
     meta.behaviorHints.defaultVideoId = `tmdb:${tmdbId}`;
   }
+
   if (imdbId) {
     meta.imdb_id = imdbId;
     meta.behaviorHints.defaultVideoId = imdbId;
-    meta.id = tmdbId;
+    meta.id = imdbId;   // ✅ 关键修复
   }
+
+  console.log('dbData:', dbData);
+  console.log('tmdbId:', tmdbId, 'imdbId:', imdbId);
 
   const config = await getConfig(c.env, params.config);
   const imageUrlGenerator = new ImageUrlGenerator(config.imageProviders, {
