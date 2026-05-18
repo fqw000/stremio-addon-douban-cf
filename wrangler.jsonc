@@ -40,7 +40,6 @@
     "TRAKT_CLIENT_ID": "7100193031cd53fc7d2ec3eb22fe4162f30f0fb572d18c5b87fa1274c3dab80b",
     "GITHUB_CLIENT_ID": "Iv23lilp1vc5xnmfhkrN"
     "TMDB_API_KEY": "e5c3c7269a147fee368c3649ddd98875"
-    "DOUBAN_COOKIE": "bid=OFslFwm02YE; ll="118237"; dbcl2="54200862:2u2lq8/MKZE"; ck=CQPe; push_doumail_num=0; frodotk_db="f93aaf5b5706f225ebb00e120514d66f"; push_noty_num=0; ap_v=0,6.0"
   },
   "ratelimits": [
     {
