@@ -1,0 +1,79 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "stremio-addon-douban-cf",
+  "main": "./src/index.tsx",
+  "assets": {
+    "directory": "public"
+  },
+  "compatibility_date": "2025-11-28",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "placement": {
+    "mode": "smart"
+  },
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "douban.wangqifei.eu.org",
+      "custom_domain": true,
+      "zone_id": "75dcbdf9910c718d00060b5b62dac3aa"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "STREMIO_ADDON_DOUBAN",
+      "database_name": "stremio-addon-douban",
+      "database_id": "eafa1d5b-7216-476c-8ae2-146f83050e18",
+      "remote": true,
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "405a95014a4d4856ba489c797419cdb4"
+    }
+  ],
+  "vars": {
+    "DOUBAN_API_KEY": "0ac44ae016490db2204ce0a042db2916",
+    "TRAKT_CLIENT_ID": "7100193031cd53fc7d2ec3eb22fe4162f30f0fb572d18c5b87fa1274c3dab80b",
+    "GITHUB_CLIENT_ID": "Ov23liAcIeCqxTwANWoZ"
+  },
+  "ratelimits": [
+    {
+      "name": "PUBLIC_RATE_LIMIT",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    },
+    {
+      "name": "USER_RATE_LIMIT",
+      "namespace_id": "1002",
+      "simple": {
+        "limit": 600,
+        "period": 60
+      }
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "0 * * * *"
+    ]
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true
+    }
+  }
+}
