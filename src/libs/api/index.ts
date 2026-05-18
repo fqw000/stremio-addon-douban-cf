@@ -52,14 +52,22 @@ class API extends BaseAPI {
     });
     if (data.length === 0) return;
 
-    console.log("🗄️ Updating douban id mapping, count:", data.length);
+    // ========== 新增：强制添加正确的 timestamp_ms ==========
+    const now = Date.now();
+    const dataWithTimestamps = data.map(item => ({
+      ...item,
+      createdAt: now,   // ✅ 显式添加整数时间戳
+      updatedAt: now,
+    }));
+    // ==================================================
+
+    console.log("🗄️ Updating douban id mapping, count:", dataWithTimestamps.length);
     await this.db
       .insert(doubanMapping)
-      .values(data)
+      .values(dataWithTimestamps)
       .onConflictDoUpdate({
         target: doubanMapping.doubanId,
         set: {
-          // 优先使用新值，新值为空时保留现有值
           imdbId: sql`COALESCE(excluded.imdb_id, ${doubanMapping.imdbId})`,
           tmdbId: sql`COALESCE(excluded.tmdb_id, ${doubanMapping.tmdbId})`,
           traktId: sql`COALESCE(excluded.trakt_id, ${doubanMapping.traktId})`,
